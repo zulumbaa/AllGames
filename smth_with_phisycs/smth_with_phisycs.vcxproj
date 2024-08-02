@@ -140,6 +140,7 @@
   <ItemGroup>
     <ClInclude Include="BasementGame.h" />
     <ClInclude Include="Game.h" />
+    <ClInclude Include="ResourceHolder.h" />
     <ClInclude Include="RevoGame.h" />
     <ClInclude Include="Saper.h" />
     <ClInclude Include="Tetrys.h" />

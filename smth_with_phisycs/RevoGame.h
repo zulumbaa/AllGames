@@ -1,8 +1,27 @@
 #pragma once
 #include <SFML/Graphics.hpp>
 #include <SFML/Audio.hpp>
-
 #include <fstream>
+#include "ResourceHolder.h"
+
+enum SoundsId {
+	Eating,
+	Vomiting,
+	GameOver,
+	LevelUp
+};
+enum TextureId {
+	GameOverSprite,
+	RedRevo,
+	GreyRevo,
+	Sad,
+	Happy,
+	Normal,
+	HeartsTexture0,
+	HeartsTexture1,
+	HeartsTexture2,
+	HeartsTexture3
+};
 
 class RevoGame
 {
@@ -14,68 +33,44 @@ private:
 	sf::Vector2i mouseWindowPosition;
 	sf::Vector2f mouseWindowPositionView;
 
-
-	sf::RectangleShape hero;
-	sf::RectangleShape eat1;
-	sf::RectangleShape eat2;
-	sf::Texture red_revo_txt, grey_revo_txt, sad, happy, normal;
-
-	sf::Texture gameOverTexture;
+	sf::RectangleShape hero, eat1, eat2, ScoreIndicatorBorder, ScoreIndicator, hearts;
 	sf::Sprite gameOverSprite;
+	ResourceHolder<sf::Texture, TextureId> textureHolder;
 
-	sf::RectangleShape ScoreIndicatorBorder;
-	sf::RectangleShape ScoreIndicator;
+	sf::Font textFont;
+	sf::Text levelText, timerText, restartText;
 
-	sf::Texture heartsTextures[4];
-	sf::RectangleShape hearts;
+	sf::Clock clock, timer;
 
+	sf::Sound sound;
+	ResourceHolder<sf::SoundBuffer, SoundsId> soundsHolder;
+	sf::Music soundtrack;
 
+	float speed;
 	double currentScore = 0;
 	double finalScore = 100;
 	double scoreDecrease = 0.01;
-
+	const unsigned NUMBER_OF_LIFES = 3;
+	const int INDEX_OF_FIRST_HESRTS_TEXTURE = static_cast<int>(TextureId::HeartsTexture0);
 	int lifes = 3;
 	bool isGameOver = false;
-
 	int level = 1;
-	sf::Font textFont;
-	sf::Text levelText;
-
-	sf::Clock clock, timer;
 	float time;
-	sf::Text timerText;
 
-
-	sf::Text restartText;
-
-
-	sf::Sound soundEating;
-	sf::SoundBuffer sbEating;
-
-	sf::Sound soundVomiting;
-	sf::SoundBuffer sbVomiting;
-
-	sf::Sound soundGameOver;
-	sf::SoundBuffer sbGameOver;
-
-	sf::Sound soundLevelUp;
-	sf::SoundBuffer sbLevelUp;
-
-
-	sf::Music soundtrack;
-	float speed;
 
 	void initVariables();
 	void initWindow();
+	void initSounds();
+	void initTextures();
 	void initHero();
 	void initEat();
 	void initSpeed();
-	void initSounds();
 	void initgameOverText();
 	void initScoreIndicator();
 	void initHearts();
 	void initText();
 
+	void playSound(const SoundsId id);
 	void heartLoosing();
 public:
 	RevoGame();
