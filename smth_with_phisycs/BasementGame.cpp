@@ -1012,6 +1012,7 @@ void BasementGame::initText()
 
 	Text.setPosition(sf::Vector2f(1500, 500));
 	Text.setCharacterSize(24);
+	render();
 	clockWaiting(5);
 	Text.setString("");
 

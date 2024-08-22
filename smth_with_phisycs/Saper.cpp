@@ -250,8 +250,7 @@ namespace saper {
         makeCellsArray(cells);
         buildField(field);
         start_sound.play();
-
-        
+        bool is_first_click = true;
 
         while (window.isOpen())
         {
@@ -267,6 +266,14 @@ namespace saper {
                     {
                         sf::Vector2i mousePos = sf::Mouse::getPosition(window);
                         int x = mousePos.x / CELL_LENGTH, y = mousePos.y / CELL_WIDTH;
+                        if (is_first_click && field[y][x].getTextureRealIndex() != 0) {
+                            while (field[y][x].getTextureRealIndex() != 0) {
+                                buildField(field);
+                            }
+                            click_sound.play();
+                            openAroundBubble(field, y, x);
+                            continue;
+                        }
                         if (field[y][x].getTextureShowIndex() != 11) {
                             if (field[y][x].getTextureRealIndex() == 9) {
                                 field[y][x].makeRed();
@@ -311,6 +318,7 @@ namespace saper {
                             field[y][x].changeShowTexture(10);
                         }
                     }
+                    is_first_click = false;
                 }
             }
 
