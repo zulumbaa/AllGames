@@ -15,6 +15,7 @@
 #include "RevoGame.h"
 #include "BasementGame.h"
 #include "Tetrys.h"
+#include "SaveAFriendGame.h"
 
 
 
@@ -88,9 +89,11 @@ public:
 	void clickOnButtonsInMainScreen();
 	void clickOnSettingWindow();
 	void clickOnLevelsWindow();
+
 	void startRevoGame();
 	void startBasementGame();
 	void startTetrysGame();
+	void startSaveAFriendGame();
 	
 	
 	void render();

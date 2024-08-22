@@ -79,15 +79,14 @@ private:
 	sf::SoundBuffer sbRedJars[3];
 	sf::SoundBuffer sbEmptyJars[3];
 	sf::SoundBuffer sbOtherJars[3];
+	sf::SoundBuffer sbCarrotSearching[3];
+	sf::SoundBuffer sbJarsKnock[3];
+	sf::SoundBuffer sbLeftRun[3];
 
 
 	sf::SoundBuffer sbNoteOpening, sbWindowKnock, sbBasementDoorOpening,
 		sbLoseDoorOpening, sbLoseFanceOpening, sbWinFanceOpening, sbLoseRun,
 		sbStairsRun, sbWinRun, sbJarBreaking, sbGav, sbJarOpening;
-	sf::SoundBuffer sbCarrotSearching[3];
-	sf::SoundBuffer sbJarsKnock[3];
-	sf::SoundBuffer sbLeftRun[3];
-
 
 
 

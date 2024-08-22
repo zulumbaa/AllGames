@@ -464,8 +464,7 @@ void Game::clickOnLevelsWindow()
 					startTetrysGame();
 					break;
 				case 5:
-					// Action for level 5
-					// e.g., startLevel(5);
+					startSaveAFriendGame();
 					break;
 				case 6:
 					// Action for level 6
@@ -537,6 +536,19 @@ void Game::startTetrysGame()
 	TetrysGame game;
 	while (game.getWindowIsOpen()) {
 		game.update();
+		game.render();
+	}
+	main_menu_music.play();
+}
+
+void Game::startSaveAFriendGame()
+{
+	main_menu_music.pause();
+
+	SafeAFriend game;
+	while (game.getWindowIsOpen()) {
+		sf::Clock deltaTime;
+		game.update(deltaTime.restart());
 		game.render();
 	}
 	main_menu_music.play();
