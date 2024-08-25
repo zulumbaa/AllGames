@@ -12,7 +12,11 @@
 #include "RenderObject.h"
 
 enum Texture{
-	Mushrooms
+	Mushrooms,
+	Green,
+	Path,
+	Water,
+	SideEditBorder,
 };
 
 
@@ -30,15 +34,20 @@ private:
 
 	ResourceHolder<sf::Texture, Texture> textures;
 
-	ObjectHolder objects;
+	ObjectHolder location_objects;
+	ObjectHolder objects_for_edit;
 
 
 	bool isEditMode = false;
 	bool isLeftMouseButtonPressed = false;
+	int scrolled_index = 0;
+	int textureWidth = 100;
+	int textureHeight = 100;
 
 	void initWindow();
 	void initTextures();
 	void initObjects();
+	void initEditSideBorder();
 	
 
 
@@ -49,7 +58,9 @@ public:
 	const bool getWindowIsOpen() const;
 	void pollEvents();
 
+	bool tryMoveObject(int objectId);
 	void editPositionOfObject();
+	void scrollTexturesInSideBoard(float delta);
 
 
 	void update(sf::Time deltatime);

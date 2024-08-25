@@ -12,16 +12,51 @@ void SafeAFriend::initWindow()
 void SafeAFriend::initTextures()
 {
     textures.Load(Texture::Mushrooms, "other//saveAfriend//images//mushrooms.png");
+    textures.Load(Texture::Green, "other//saveAfriend//images//green.png");
+    textures.Load(Texture::SideEditBorder, "other//saveAfriend//images//side_edit_border.png");
+    textures.Load(Texture::Path, "other//saveAfriend//images//path.png");
+    textures.Load(Texture::Water, "other//saveAfriend//images//water.png");
+
+
+
 }
 
 void SafeAFriend::initObjects()
 {
+    initEditSideBorder();
+
     std::unique_ptr<RenderObject> mushroom1 = std::make_unique<RenderObject>();
     mushroom1->getObject().setTexture(&textures.Get(Texture::Mushrooms));
     mushroom1->getObject().setSize(sf::Vector2f(100, 100));
-    objects.AddObject(std::move(mushroom1));
+    location_objects.AddObject(std::move(mushroom1));
 
-    objects.setPositionsFromFile();
+    std::unique_ptr<RenderObject> green = std::make_unique<RenderObject>();
+    green->getObject().setTexture(&textures.Get(Texture::Green));
+    green->getObject().setSize(sf::Vector2f(100, 100));
+    location_objects.AddObject(std::move(green));
+
+    location_objects.setPositionsFromFile();
+}
+
+void SafeAFriend::initEditSideBorder()
+{
+    std::unique_ptr<RenderObject> side_border = std::make_unique<RenderObject>();
+    side_border->getObject().setTexture(&textures.Get(Texture::SideEditBorder));
+    side_border->getObject().setSize(sf::Vector2f(100, window->getSize().y));
+    objects_for_edit.AddObject(std::move(side_border));
+
+    for (int i = static_cast<int>(Texture::Mushrooms); i < static_cast<int>(Texture::SideEditBorder); ++i) {
+        Texture textureEnum = static_cast<Texture>(i);
+
+        std::unique_ptr<RenderObject> texture_object = std::make_unique<RenderObject>();
+        texture_object->getObject().setTexture(&textures.Get(textureEnum));
+        texture_object->getObject().setSize(sf::Vector2f(textureWidth, textureHeight));
+
+        float y = i * textureHeight;  
+
+        texture_object->getObject().setPosition(sf::Vector2f(0, y));
+        objects_for_edit.AddObject(std::move(texture_object));
+    }
 }
 
 SafeAFriend::SafeAFriend()
@@ -55,16 +90,9 @@ void SafeAFriend::pollEvents()
             }
             else if (ev.key.code == sf::Keyboard::Numpad0) {
                 isEditMode = !isEditMode;
-                if (isEditMode) {
-                    for (const auto& pair : objects.getAllObjects()) {
-                        pair.second->showBorder();
-                    }
-                }
-                else {
-                    for (const auto& pair : objects.getAllObjects()) {
-                        pair.second->hideBorder();
-                    }
-                    objects.savePositionsToFile();
+                if (!isEditMode) {
+                    location_objects.changeHiglightObj(0);
+                    location_objects.savePositionsToFile();
                 }
             }
             break;
@@ -79,24 +107,69 @@ void SafeAFriend::pollEvents()
                 isLeftMouseButtonPressed = false;
             }
             break;
+
+        case sf::Event::MouseWheelScrolled:
+            if (isEditMode) {
+                scrollTexturesInSideBoard(ev.mouseWheelScroll.delta);
+            }
+            break;
         }
+    }
+}
+
+bool SafeAFriend::tryMoveObject(int objectId)
+{
+    RenderObject* object = &location_objects.Get(objectId);
+    if (object != nullptr) {
+        sf::RectangleShape& obj = object->getObject();
+        auto [topLeft, topRight, bottomLeft, bottomRight] = object->getBoundingBox();
+
+        if (coordsInRectangle(mouseWindowPositionView, topLeft, topRight, bottomLeft, bottomRight)) {
+            location_objects.changeHiglightObj(objectId);
+            obj.setPosition(mouseWindowPositionView - obj.getSize() / 2.0f);
+            return true;
+        }
+        else
+            location_objects.changeHiglightObj(0);
+        return false;
     }
 }
 
 void SafeAFriend::editPositionOfObject()
 {
     if (isEditMode && isLeftMouseButtonPressed) {
-        for (auto& pair : objects.getAllObjects()) {
-            sf::RectangleShape& obj = pair.second->getObject();
-            auto [topLeft, topRight, bottomLeft, bottomRight] = pair.second->getBoundingBox();
+        int id = location_objects.getHighlightObjId();
+        if (id != 0) {
+            tryMoveObject(id);
+            return; 
+        }
 
-            if (coordsInRectangle(mouseWindowPositionView, topLeft, topRight, bottomLeft, bottomRight)) {
-                obj.setPosition(mouseWindowPositionView - obj.getSize() / 2.0f);
-                break;
+        for (auto& pair : location_objects.getAllObjects()) {
+            if (pair.first != id) { 
+                if (tryMoveObject(pair.first))
+                    return;
             }
         }
     }
-    
+}
+
+void SafeAFriend::scrollTexturesInSideBoard(float delta)
+{
+    int new_scrolled_index = scrolled_index + delta;
+    std::cout << new_scrolled_index << std::endl;
+    if (new_scrolled_index >= 0 && new_scrolled_index <= static_cast<int>(Texture::SideEditBorder))
+    {
+        scrolled_index += delta;
+        int index = 0;
+
+        for (auto& pair : objects_for_edit.getAllObjects()) {
+            if (index > 0) { 
+                sf::RectangleShape& obj = pair.second->getObject();
+                obj.move(0, delta * textureHeight);
+            }
+            ++index;
+        }
+    }
 }
 
 
@@ -127,10 +200,20 @@ bool SafeAFriend::coordsInRectangle(sf::Vector2f coords, sf::Vector2f topLeft, s
 void SafeAFriend::render()
 {
     window->clear();
-
-    for (const auto& pair : objects.getAllObjects()) {
-        window->draw(pair.second->getObject());
+    if (isEditMode) {
+         for (const auto& pair : objects_for_edit.getAllObjects()) {
+                window->draw(pair.second->getObject());
+         }
+         for (const auto& pair : location_objects.getAllObjects()) {
+             window->draw(pair.second->getObject());
+         }
     }
+    else {
+        for (const auto& pair : location_objects.getAllObjects()) {
+            window->draw(pair.second->getObject());
+        }
+    }
+   
 
     window->display();
 }

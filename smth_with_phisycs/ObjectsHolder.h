@@ -8,16 +8,41 @@
 class ObjectHolder {
 private:
     std::unordered_map<int, std::unique_ptr<RenderObject>> objectHolder;
+    int obj_id_with_border = 0;
 
 public:
     RenderObject& Get(int id) const {
         return *objectHolder.at(id);
     }
 
+    int getHighlightObjId() const {
+        return obj_id_with_border;
+    }
+
+    void changeHiglightObj(int indx) {
+
+        if (indx == 0) {
+            if (obj_id_with_border != 0)
+                objectHolder[obj_id_with_border]->hideBorder();
+
+            obj_id_with_border = 0;
+        }
+        else if (objectHolder.find(indx) != objectHolder.end()) {
+            if (obj_id_with_border != 0)
+                objectHolder[obj_id_with_border]->hideBorder();
+
+            obj_id_with_border = indx;
+            objectHolder[obj_id_with_border]->showBorder();
+        }
+        else {
+            std::cerr << "Object with ID " << indx << " not found in objectHolder." << std::endl;
+        }
+    }
     void AddObject(std::unique_ptr<RenderObject> object) {
-        int id = object->getId(); // Метод getId() треба додати в RenderObject
+        int id = object->getId(); 
         objectHolder[id] = std::move(object);
     }
+
     const std::unordered_map<int, std::unique_ptr<RenderObject>>& getAllObjects() const {
         return objectHolder;
     }
