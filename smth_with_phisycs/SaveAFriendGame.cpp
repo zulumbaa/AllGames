@@ -17,8 +17,6 @@ void SafeAFriend::initTextures()
     textures.Load(Texture::Path, "other//saveAfriend//images//path.png");
     textures.Load(Texture::Water, "other//saveAfriend//images//water.png");
 
-
-
 }
 
 void SafeAFriend::initObjects()
@@ -43,7 +41,7 @@ void SafeAFriend::initEditSideBorder()
     std::unique_ptr<RenderObject> side_border = std::make_unique<RenderObject>();
     side_border->getObject().setTexture(&textures.Get(Texture::SideEditBorder));
     side_border->getObject().setSize(sf::Vector2f(100, window->getSize().y));
-    objects_for_edit.AddObject(std::move(side_border));
+    objects_to_insert_in_edit_mode.AddObject(std::move(side_border));
 
     for (int i = static_cast<int>(Texture::Mushrooms); i < static_cast<int>(Texture::SideEditBorder); ++i) {
         Texture textureEnum = static_cast<Texture>(i);
@@ -55,7 +53,7 @@ void SafeAFriend::initEditSideBorder()
         float y = i * textureHeight;  
 
         texture_object->getObject().setPosition(sf::Vector2f(0, y));
-        objects_for_edit.AddObject(std::move(texture_object));
+        objects_to_insert_in_edit_mode.AddObject(std::move(texture_object));
     }
 }
 
@@ -93,6 +91,13 @@ void SafeAFriend::pollEvents()
                 if (!isEditMode) {
                     location_objects.changeHiglightObj(0);
                     location_objects.savePositionsToFile();
+                }
+            }
+            else if (ev.key.code == sf::Keyboard::Subtract) {
+                if (isEditMode) {
+                    if (tryToDeleteObjectInEditMode()) {
+                        location_objects.savePositionsToFile();
+                    }
                 }
             }
             break;
@@ -162,7 +167,7 @@ void SafeAFriend::scrollTexturesInSideBoard(float delta)
         scrolled_index += delta;
         int index = 0;
 
-        for (auto& pair : objects_for_edit.getAllObjects()) {
+        for (auto& pair : objects_to_insert_in_edit_mode.getAllObjects()) {
             if (index > 0) { 
                 sf::RectangleShape& obj = pair.second->getObject();
                 obj.move(0, delta * textureHeight);
@@ -170,6 +175,17 @@ void SafeAFriend::scrollTexturesInSideBoard(float delta)
             ++index;
         }
     }
+}
+
+bool SafeAFriend::tryToDeleteObjectInEditMode()
+{
+    for (auto& pair : location_objects.getAllObjects()) {
+        if (pair.first == location_objects.getHighlightObjId()) {
+            location_objects.RemoveObject(pair.first);
+            return true;
+        }
+    }
+    return false;
 }
 
 
@@ -201,7 +217,7 @@ void SafeAFriend::render()
 {
     window->clear();
     if (isEditMode) {
-         for (const auto& pair : objects_for_edit.getAllObjects()) {
+         for (const auto& pair : objects_to_insert_in_edit_mode.getAllObjects()) {
                 window->draw(pair.second->getObject());
          }
          for (const auto& pair : location_objects.getAllObjects()) {

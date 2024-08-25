@@ -42,6 +42,20 @@ public:
         int id = object->getId(); 
         objectHolder[id] = std::move(object);
     }
+    void RemoveObject(const int id) {
+        auto it = objectHolder.find(id);
+
+        if (it != objectHolder.end()) {
+            if (obj_id_with_border == id) {
+                obj_id_with_border = 0; 
+            }
+            objectHolder.erase(it); 
+        }
+        else {
+            std::cerr << "Object with ID " << id << " not found in objectHolder." << std::endl;
+        }
+    }
+
 
     const std::unordered_map<int, std::unique_ptr<RenderObject>>& getAllObjects() const {
         return objectHolder;

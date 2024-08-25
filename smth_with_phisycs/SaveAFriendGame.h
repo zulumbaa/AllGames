@@ -35,7 +35,7 @@ private:
 	ResourceHolder<sf::Texture, Texture> textures;
 
 	ObjectHolder location_objects;
-	ObjectHolder objects_for_edit;
+	ObjectHolder objects_to_insert_in_edit_mode;
 
 
 	bool isEditMode = false;
@@ -61,6 +61,7 @@ public:
 	bool tryMoveObject(int objectId);
 	void editPositionOfObject();
 	void scrollTexturesInSideBoard(float delta);
+	bool tryToDeleteObjectInEditMode();
 
 
 	void update(sf::Time deltatime);
